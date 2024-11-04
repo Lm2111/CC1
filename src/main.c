@@ -6,6 +6,7 @@
 
 #include "btree.h"
 #include "database.h"
+#include "results.h"
 
 
 int main(int argc, char *argv[]) {
