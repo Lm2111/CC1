@@ -7,7 +7,7 @@
 #include "btree.h"
 #include "database.h"
 #include "results.h"
-
+#include "process_input.h"
 
 int main(int argc, char *argv[]) {
   (void)argc;
