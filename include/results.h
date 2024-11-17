@@ -14,7 +14,7 @@ void free_result(result *res);
 row *row_exists(result *res, int row_num);
 row *add_row(result *res, int row_number);
 int get_col_num(table *tebo, char *column);
-void add_cell(result *res, sql_cell cell);
+void add_cell(result *res, sql_cell *cell);
 void add_cell_pre_order(result *res, Node *root);
 void get_row_pre_order(result *res, Node *root, int row);
 #endif

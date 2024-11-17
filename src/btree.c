@@ -19,24 +19,6 @@
 
 #include "btree.h"
 
-
-// Création de cellule SQL avec les informations de ligne, clé, colonne et table
-sql_cell create_sql_cell(int row, char key[], char column[], char table[]) {
-  sql_cell cell;
-  cell.row = row;
-
-// Nettoie la mémoire avant de copier les valeurs dans la cellule
-   memset(cell.column, 0, BUFSZE);
-  strcpy(cell.column, column);
-
-  memset(cell.key, 0, BUFSZE);
-  strcpy(cell.key, key);
-
-  memset(cell.table, 0, BUFSZE);
-  strcpy(cell.table, table);
-  return cell;
-  }
-
 //calcule de la haut du noeud dans l'arbre
 
   int get_height(struct Node *N) {
@@ -108,11 +90,12 @@ Node *insert_node(Node *node, sql_cell key) {
 
 // Détermine où insérer le nouveau nœud en fonction de la clé
 
-  if (strcmp(key.key, node->cell.key) < 0) {
+  if (strcmp(key->key, node->cell->key) < 0) {
     node->left = insert_node(node->left, key);
-  } else if (strcmp(key.key, node->cell.key) > 0) {
+  } else if (strcmp(key->key, node->cell->key) > 0){
     node->right = insert_node(node->right, key);
-  } else {
+  } else { 
+    insert_cell(&(node->cell), key);
     return node;
   }
 
@@ -125,16 +108,18 @@ Node *insert_node(Node *node, sql_cell key) {
 // Vérifie et applique les rotations pour maintenir l'équilibre de l'arbre
 
   int bal = get_balance(node);
-  if (bal > 1 && strcmp(key.key, node->cell.key) < 0) return right_rotate(node);
+ if (bal > 1 && strcmp(key->key, node->cell->key) < 0)
+    return right_rotate(node);
 
-  if (bal < -1 && strcmp(key.key, node->cell.key) > 0) return left_rotate(node);
+  if (bal < -1 && strcmp(key->key, node->cell->key) > 0)
+    return left_rotate(node);
 
-  if (bal > 1 && strcmp(key.key, node->cell.key) > 0) {
+  if (bal > 1 && strcmp(key->key, node->cell->key) > 0) {
     node->left = left_rotate(node->left);
     return right_rotate(node);
   }
 
-  if (bal < -1 && strcmp(key.key, node->cell.key) < 0) {
+  if (bal < -1 && strcmp(key->key, node->cell->key) < 0) {
     node->right = right_rotate(node->right);
     return left_rotate(node);
   }
@@ -154,14 +139,18 @@ struct Node *min_value_node(struct Node *node) {
 }
 
 // Recherche un nœud dans l'arbre en fonction de la clé
-Node *search_node(Node *root, char *key) {
+sql_cell **search_node(Node *root, char *key, char *table, char *column,
+                       int *size) {
   if (root) {
-    if (strcmp(key, root->cell.key) < 0) {
-      return search_node(root->left, key);
-    } else if (strcmp(key, root->cell.key) > 0) {
-      return search_node(root->right, key);
+    if (strcmp(key, root->cell->key) < 0) {
+      return search_node(root->left, key, table, column, size);
+    } else if (strcmp(key, root->cell->key) > 0) {
+      return search_node(root->right, key, table, column, size);
     } else {
-      return root;
+      sql_cell *sel = create_sql_cell(-1, key, column, table);
+      sql_cell **cell = search_cell(&root->cell, sel, size);
+      free(sel);
+      return cell;
     }
   }
   return NULL;
@@ -175,11 +164,12 @@ Node *delete_node(Node *root, sql_cell key) {
   }
 
 // Trouve le nœud à supprimer en comparant les clés
-  if (strcmp(key.key, root->cell.key) < 0) {
+   if (strcmp(key->key, root->cell->key) < 0) {
     root->left = delete_node(root->left, key);
-  } else if (strcmp(key.key, root->cell.key) > 0) {
+  } else if (strcmp(key->key, root->cell->key) > 0) {
     root->right = delete_node(root->right, key);
   } else {
+     delete_cell(&root->cell, key);
     // Supprime le nœud et ajuste l'arbre en fonction de ses enfants
     if ((root->left == NULL) || (root->right == NULL)) {
       Node *temp = root->left ? root->left : root->right;
@@ -239,9 +229,15 @@ void print_pre_order(Node *root) {
 // Libère la mémoire allouée pour l'arbre
 
 void free_tree(Node *root) {
-  if (root != NULL) {
+   if (root != NULL) {
     free_tree(root->left);
     free_tree(root->right);
+    sql_cell *current = root->cell;
+    while (current) {
+      sql_cell *to_del = current;
+      current = current->next;
+      free(to_del);
+    }
     free(root);
   }
 }
@@ -252,6 +248,7 @@ void save_in_order(Node *root, FILE *fle) {
   if (root != NULL) {
     save_in_order(root->left, fle);
     fwrite(&(root->cell), sizeof(sql_cell), 1, fle);
+    free(root->cell);
     save_in_order(root->right, fle);
   }
 }
@@ -267,7 +264,7 @@ void save_to_file(Node *root, FILE *fle) {
 
 Node *read_from_file(FILE *fle) {
 
-    sql_cell cell;
+    sql_cell *cell;
   Node *root = NULL;
   while (fread(&cell, sizeof(sql_cell), 1, fle)) {
 
@@ -279,14 +276,18 @@ Node *read_from_file(FILE *fle) {
 
 // Récupère toutes les lignes d'un certain numéro dans l'arbre
 
-void fetch_row_pre_order(Node *root, int row, sql_cell **array, int *size) {
+void fetch_row_pre_order(Node *root, int row, sql_cell ***array, int *size) {
   if (root != NULL) {
-    if ((root)->cell.row == row) {
-      (*size)++;
-      *array = realloc(*array, sizeof(sql_cell) * (*size));
-           (*array)[(*size) - 1] = root->cell;
-
+    sql_cell *current = root->cell;
+    while (current) {
+      if (current->row == row) {
+        (*size)++;
+        *array = realloc(*array, sizeof(sql_cell) * (*size));
+        (*array)[(*size) - 1] = root->cell;
+      }
+      current = current->next;
     }
+
     fetch_row_pre_order(root->left, row, array, size);
     fetch_row_pre_order(root->right, row, array, size);
   }

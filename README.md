@@ -15,34 +15,6 @@ Structure du Projet
 Le projet est organisé comme suit :
 
 src/main.c : Point d'entrée du programme.
-
-src/btree.c et src/btree.h : Fonctions pour gérer l'arbre binaire (insertion, recherche, suppression).
-
-src/database.c et src/database.h : Fonctions principales de gestion de la base de données.
-
-src/results.c et src/results.h : Fonctions de gestion et affichage des résultats de requêtes.
-
-src/process_input.c et src/process_input.h : Gère l'interface en ligne de commande pour interpréter les requêtes de l'utilisateur.
-
-
-Voici un fichier README.md prêt à être copié-collé, détaillant le fonctionnement de votre programme de gestion de base de données en ligne de commande en C.
-
-Base de Données en C
-
-Ce programme est une base de données simplifiée, conçue pour fonctionner en ligne de commande, avec des fonctionnalités basiques de gestion de tables. Il permet de créer des tables, d'insérer, de sélectionner, et de supprimer des données à l'aide de commandes spécifiques. Les données sont organisées sous forme d'un arbre binaire pour faciliter la recherche et la gestion des enregistrements.
-
-Fonctionnalités
-
-Création de tables : Créez des tables avec des colonnes définies.
-Insertion de données : Ajoutez des lignes de données dans les tables.
-Sélection de données : Affichez les données avec ou sans condition de filtrage.
-Suppression de données : Supprimez des lignes spécifiques basées sur des conditions.
-Structure en arbre binaire : Optimise les recherches et la gestion des données.
-Structure du Projet
-
-Le projet est organisé comme suit :
-
-src/main.c : Point d'entrée du programme.
 src/btree.c et src/btree.h : Fonctions pour gérer l'arbre binaire (insertion, recherche, suppression).
 src/database.c et src/database.h : Fonctions principales de gestion de la base de données.
 src/results.c et src/results.h : Fonctions de gestion et affichage des résultats de requêtes.
@@ -50,7 +22,8 @@ src/process_input.c et src/process_input.h : Gère l'interface en ligne de comma
 Compilation et Exécution
 
 Compilation
-Pour compiler le programme, utilisez le Makefile fourni. Assurez-vous que vous êtes dans le répertoire principal du projet.
+Pour compiler le programme, utilisez le Makefile fourni. Assurez-vous que vous êtes dans le répertoire principal du projet. Le programme est compilé en utilisant GCC (GNU Compiler Collection), un compilateur open-source pour le langage C.
+
 
 Compiler le programme :
 make

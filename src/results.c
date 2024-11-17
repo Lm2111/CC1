@@ -74,8 +74,12 @@ void add_cell(result *res, sql_cell cell) {
 
 void add_cell_pre_order(result *res, Node *root) {
   if (root != NULL) {
-    if (strcmp(root->cell.table, res->tebo->name) == 0) {
-      add_cell(res, root->cell);
+    sql_cell *current = root->cell;
+    while (current) {
+      if (strcmp(current->table, res->tebo->name) == 0) {
+        add_cell(res, current);
+      }
+      current = current->next;
     }
     add_cell_pre_order(res, root->left);
     add_cell_pre_order(res, root->right);
@@ -84,8 +88,12 @@ void add_cell_pre_order(result *res, Node *root) {
 
 void get_row_pre_order(result *res, Node *root, int row) {
   if (root != NULL) {
-    if (root->cell.row == row) {
-      add_cell(res, root->cell);
+    sql_cell *current = root->cell;
+    while (current) {
+      if (current->row == row) {
+        add_cell(res, current);
+      }
+      current = current->next;
     }
     get_row_pre_order(res, root->left, row);
     get_row_pre_order(res, root->right, row);

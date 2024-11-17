@@ -41,7 +41,9 @@ void process_input(Database* dbase) {
 
     int num;
     char **tokens = tokenize(input_line, &num);  // Découpe la ligne en tokens
-
+        for (int i = 0; i < num; ++i) {
+       printf("%s\n", tokens[i]);
+         }
     // Commande "create" pour créer une table
     if (strcmp("create", tokens[0]) == 0) {
       if (num < 3) {
@@ -96,15 +98,18 @@ void process_input(Database* dbase) {
             if (col == -1) {
               printf("column %s does not exist on table %s\n", tokens[3], tebo->name);
             } else if (strcmp("=", tokens[4]) == 0) {
-              Node *found = search_node(dbase->btree, tokens[5]);
-              if (found && strcmp(found->cell.table, tokens[1]) == 0 &&
-                  strcmp(found->cell.column, tokens[3]) == 0) {
-                result *res = create_results(tebo);
-                get_row_pre_order(res, dbase->btree, found->cell.row);
+              int size = 0;
+              sql_cell **found = search_node(dbase->btree, tokens[5], tokens[1],
+                                             tokens[3], &size);
+              result *res = create_results(tebo);
+              for (int i = 0; i < size; ++i) {
+                get_row_pre_order(res, dbase->btree, found[i]->row);
+              }
                 print_result(res);
                 free_result(res);
+                 free(found);
               }
-            } else {
+            else {
               printf("syntax error token 5\n");
             }
           }
@@ -129,21 +134,23 @@ void process_input(Database* dbase) {
             if (col == -1) {
               printf("column %s does not exist on table %s\n", tokens[3], tebo->name);
             } else if (strcmp("=", tokens[4]) == 0) {
-              printf("deleting %d cells\n", tebo->cols_size);
-              Node *found = search_node(dbase->btree, tokens[5]);
-              int row = found->cell.row;
-              if (found && strcmp(found->cell.table, tokens[1]) == 0 &&
-                  strcmp(found->cell.column, tokens[3]) == 0) {
-               sql_cell *cells = NULL;
+              // printf("deleting %d cells\n", tebo->cols_size);
+              int size = 0;
+              sql_cell **found = search_node(dbase->btree, tokens[5], tokens[1],
+                                             tokens[3], &size);
+              for (int i = 0; i < size; ++i) {
+                int row = found[i]->row;
+                sql_cell **cells = NULL;
                 int size = 0;
-               fetch_row_pre_order(dbase->btree, found->cell.row, &cells,
-                                    &size);
+                fetch_row_pre_order(dbase->btree, found[i]->row, &cells, &size);
                 for (int i = 0; i < size; ++i) {
-              dbase->btree = delete_node(dbase->btree, cells[i]);
+                  dbase->btree = delete_node(dbase->btree, cells[i]);
+                  free(cells[i]);
                 }
-               free(cells);
+                free(cells);
                 printf("deleted row %d \n", row);
               }
+              free(found);
             } else {
               printf("syntax error token 5\n");
             }
