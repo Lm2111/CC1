@@ -43,7 +43,7 @@ Utilisation des Commandes
 1. Création d'une table
 Crée une nouvelle table avec des colonnes spécifiées.
 
-Syntaxe :create <table_name> <col1> <col2> ...
+Syntaxe :create <table_name> <nom_des_colun> <nom_des_colun> ...
 
 2. Insertion de données
 Insère une ligne de données dans une table existante.
