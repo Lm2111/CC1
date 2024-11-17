@@ -131,15 +131,18 @@ void process_input(Database* dbase) {
             } else if (strcmp("=", tokens[4]) == 0) {
               printf("deleting %d cells\n", tebo->cols_size);
               Node *found = search_node(dbase->btree, tokens[5]);
+              int row = found->cell.row;
               if (found && strcmp(found->cell.table, tokens[1]) == 0 &&
                   strcmp(found->cell.column, tokens[3]) == 0) {
-                Node **del = NULL;
+               sql_cell *cells = NULL;
                 int size = 0;
-                fetch_row_pre_order(dbase->btree, found->cell.row, &del, &size);
-                for (int i = 0; i < 3; ++i){
-                  dbase->btree = delete_node(dbase->btree, del[i]->cell);
+               fetch_row_pre_order(dbase->btree, found->cell.row, &cells,
+                                    &size);
+                for (int i = 0; i < size; ++i) {
+              dbase->btree = delete_node(dbase->btree, cells[i]);
                 }
-                free(del);
+               free(cells);
+                printf("deleted row %d \n", row);
               }
             } else {
               printf("syntax error token 5\n");
