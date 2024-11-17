@@ -58,20 +58,20 @@ int get_col_num(table *tebo, char *column) {
   return -1;
 }
 
-void add_cell(result *res, sql_cell cell) {
-   // Récupère la ligne de la cellule
-  row *rw = row_exists(res, cell.row);
+void add_cell(result *res, sql_cell *cell) {
+  // Récupère la ligne du cellulaire
+  row *rw = row_exists(res, cell->row);
   if (!rw) {
-    rw = add_row(res, cell.row);
+    rw = add_row(res, cell->row);
   }
-// Récupère le numéro de colonne de la cellule
-  int col = get_col_num(res->tebo, cell.column);
+  // Récupère le numéro de colonne du cellulaire
+  int col = get_col_num(res->tebo, cell->column);
   if (col >= 0) {
-    rw->cols[col] = strdup(cell.key);
+    rw->cols[col] = strdup(cell->key);
   }
 }
 
-
+// Affiche l'arbre
 void add_cell_pre_order(result *res, Node *root) {
   if (root != NULL) {
     sql_cell *current = root->cell;
@@ -92,6 +92,7 @@ void get_row_pre_order(result *res, Node *root, int row) {
     while (current) {
       if (current->row == row) {
         add_cell(res, current);
+   
       }
       current = current->next;
     }
