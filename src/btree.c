@@ -279,12 +279,12 @@ Node *read_from_file(FILE *fle) {
 
 // Récupère toutes les lignes d'un certain numéro dans l'arbre
 
-void fetch_row_pre_order(Node *root, int row, Node ***array, int *size) {
+void fetch_row_pre_order(Node *root, int row, sql_cell **array, int *size) {
   if (root != NULL) {
     if ((root)->cell.row == row) {
       (*size)++;
-      *array = realloc(*array, sizeof(Node **) * (*size));
-      (*array)[(*size) - 1] = root;
+      *array = realloc(*array, sizeof(sql_cell) * (*size));
+           (*array)[(*size) - 1] = root->cell;
 
     }
     fetch_row_pre_order(root->left, row, array, size);

@@ -67,6 +67,6 @@ Node *read_from_file(FILE *);
 // Teste si l'arbre binaire fonctionne correctement
 int test_btree();
 // Récupère une ligne entière depuis l'arbre binaire
-void fetch_row_pre_order(Node *root, int row, Node ***array, int *size);
+void fetch_row_pre_order(Node *root, int row, sql_cell **array, int *size);
 
 #endif
