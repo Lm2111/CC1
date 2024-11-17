@@ -27,7 +27,7 @@ table *create_table(char **fields, int size) {
 
 void free_table(table *tebo) {
   for (int i = 0; i < tebo->cols_size; ++i) {
-    // printf("free - %s\n", tebo->columns[i]);
+    
     free(tebo->columns[i]);
   }
   free(tebo->name);
@@ -71,7 +71,7 @@ Database *create_database(char *dbasefile, char *metafile) {
   dbase->tables = NULL;
   dbase->num_tables = 0;
   FILE *meta_fle = fopen(metafile, "r");
-  //
+
   if (meta_fle) {
     char line[81] = {0};
     fgets(line, 80, meta_fle);
@@ -83,7 +83,7 @@ Database *create_database(char *dbasefile, char *metafile) {
     }
     fclose(meta_fle);
   }
-  //
+
 
   dbase->btree = NULL;
   FILE *dbase_fle = fopen(dbasefile, "r");
@@ -95,7 +95,7 @@ Database *create_database(char *dbasefile, char *metafile) {
 
 void free_database(Database *dbase, char *dbasefile, char *metafile) {
   FILE *meta_fle = fopen(metafile, "w");
-  //
+ 
   fprintf(meta_fle, "%d\n", dbase->num_tables);
   for (int i = 0; i < dbase->num_tables; ++i) {
     save_table(dbase->tables[i], meta_fle);
